@@ -7,7 +7,7 @@ __pycache__/
 logs
 venv
 draft.py
-Config.yaml
+config/Config.yaml
 # C extensions
 *.so
 

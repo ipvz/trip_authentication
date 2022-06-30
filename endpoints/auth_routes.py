@@ -1,9 +1,9 @@
 from fastapi.encoders import jsonable_encoder
 from fastapi_jwt_auth import AuthJWT
 from fastapi import APIRouter, status, Depends
-from database import Session, engine
-from schemas import SingUpModel, LoginModel
-from models import User
+from db.database import Session, engine
+from schemes.schemas import SingUpModel, LoginModel
+from models.models import User
 from fastapi.exceptions import HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,10 +25,10 @@ async def hello(Authorize: AuthJWT=Depends()):
 
 @auth_router.post('/singup', status_code=status.HTTP_201_CREATED)
 async def singup(user: SingUpModel):
-    db_email = session.query(User).filter(User.email==user.email).first()
+    db_email = session.query(User).filter(User.email == user.email).first()
     if db_email is not None:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with the email already exitst")
-    db_username = session.query(User).filter(User.username==user.username).first()
+    db_username = session.query(User).filter(User.username == user.username).first()
     if db_username is not None:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with the username already exitst")
 
@@ -41,14 +41,15 @@ async def singup(user: SingUpModel):
     )
     session.add(new_user)
     session.commit()
+    print(f"new - {new_user}")
     return new_user
 
 
 @auth_router.post('/login')
 async def login(user: LoginModel, Authorize: AuthJWT=Depends()):
-    db_user = session.query(User).filter(User.username==user.username).first()
+    db_user = session.query(User).filter(User.username == user.username).first()
     if db_user and check_password_hash(db_user.password, user.password):
-        access_token = Authorize.create_access_token(subject=db_user.username)
+        access_token = Authorize.create_access_token(subject=db_user.username, expires_time=600)
         refresh_token = Authorize.create_refresh_token(subject=db_user.username)
         response = {
             'access_token': access_token,
