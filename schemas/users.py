@@ -7,6 +7,7 @@ class SingUpModel(BaseModel):
     username: str
     email: str
     password: str
+    refresh_token: Optional[str]
     is_staff: Optional[bool]
     is_active: Optional[bool]
 
@@ -23,10 +24,20 @@ class SingUpModel(BaseModel):
         }
 
 
-class Settings(BaseModel):
-    authjwt_secret_key: str = '8cb8002e3530583960b9b4f19a0947eb107d4a7fb9fa4099a7e752598f23f5ad'
-
-
 class LoginModel(BaseModel):
     username: str
     password: str
+
+
+class UserOutDb(BaseModel):
+    username: str
+    email: str
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            'example': {
+                'username': 'vladislav',
+                'email': 'vladislav@gmail.com',
+            }
+        }
