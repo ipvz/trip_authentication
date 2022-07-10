@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives import serialization
 
-with open('/home/astral/PROJECT/AUTH/trip_authentication_02_07/core/private-key.pem', 'rb') as private_file:
+with open('core/private-key.pem', 'rb') as private_file:
     priavte_key = serialization.load_pem_private_key(
         private_file.read(),
         password=None
