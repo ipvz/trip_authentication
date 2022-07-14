@@ -43,3 +43,11 @@ async def check_token(response: Optional[Response]=None, access_token: Optional[
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Invalid token'
             )
+
+
+async def check_access_token(access_token: Optional[str]):
+    try:
+        decoded_payload: dict = jwt.decode(access_token, key, ['RS512'], audience='access')
+        return decoded_payload
+    except JWTError:
+        return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")

@@ -19,8 +19,7 @@ class UserOperation:
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with the email already exitst")
         db_username = self.db_session.query(User).filter(User.username == user.username).first()
         if db_username is not None:
-            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                 detail="User with the username already exitst")
+            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with the username already exitst")
 
         new_user = User(
             username=user.username,
@@ -31,8 +30,7 @@ class UserOperation:
         )
         self.db_session.add(new_user)
         self.db_session.commit()
-        print(new_user)
-        return new_user
+        return HTTPException(status_code=status.HTTP_200_OK, detail="Successful registration")
 
     async def get_user_by_username(self, user: LoginModel) -> List[User]:
         db_user = self.db_session.query(User).filter(User.username == user.username).first()
