@@ -1,0 +1,6 @@
+psql:
+  host: 'localhost'
+  database: 'mybas2e'
+  user: 'myuser'
+  passwd: 'mypass'
+  port: 5432
