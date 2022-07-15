@@ -26,8 +26,5 @@ async def authenticate_user(user_crud: UserOperation, user: LoginModel, response
 
     await user_crud.write_refresh_token(user_db, refresh_token)
 
-    # response.set_cookie(key='access_token', value=access_token, httponly=True)
-    # response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
-
-    # return {'detail': 'User authenticated successfully'}
     return {'access_token': access_token, 'refresh_token': refresh_token}
+

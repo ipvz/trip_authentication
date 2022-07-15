@@ -18,7 +18,7 @@ def create_jwt_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=1)
+        expire = datetime.utcnow() + timedelta(minutes=5)
 
     payload.update({'exp': expire, 'jti': str(uuid4())})
     encoded_jwt = jwt.encode(payload, pem, 'RS512')

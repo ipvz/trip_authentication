@@ -6,7 +6,8 @@ cfg = Config.parse_file('config/Config.yaml')
 
 settings = Settings(**cfg.psql)
 
-engine = create_engine(settings.DATABASE_URI, echo=True)
+# engine = create_engine(settings.DATABASE_URI, echo=True)
+engine = create_engine("sqlite:///./test.db", echo=True)
 
 Base = declarative_base()
 

@@ -1,53 +1,47 @@
+import time
 from api.dependencies.JWT_config import jwt_decode, create_jwt_token
-from fastapi import Cookie
 from typing import Optional
 from datetime import timedelta
 from api.session import user_crud
 from jose import jwt, JWTError
 from core.RSA_config import key
 from fastapi import (
-    Response,
     HTTPException,
     status
 )
 
 
-async def check_token(response: Optional[Response]=None, access_token: Optional[str]=Cookie(None), refresh_token: Optional[str]=Cookie(None)):
-    try:
-        decoded_payload: dict = jwt.decode(access_token, key, ['RS512'], audience='access')
-        print(f"decoded_payload - {decoded_payload}")
-        return decoded_payload
-    except JWTError:
-        decoded_username = (await jwt_decode(refresh_token, 'refresh'))['username']
-        user_db = await user_crud.get_user_by_username_str(decoded_username)
-        if user_db is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='User not found'
-            )
-        if user_db.refresh_token == refresh_token:
-            access_payload = {'username': user_db.username, 'aud': 'access'}
-            refresh_payload = {'username': user_db.username, 'aud': 'refresh'}
+async def refresh_token(token: Optional[str]):
+    decoded_username = (await jwt_decode(token, 'refresh'))['username']
+    user_db = await user_crud.get_user_by_username_str(decoded_username)
+    if user_db is None:
+        return HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
+    elif user_db.refresh_token == token:
 
-            access_token = create_jwt_token(access_payload)
-            refresh_token = create_jwt_token(refresh_payload, timedelta(days=30))
+        access_payload = {'username': user_db.username, 'aud': 'access'}
+        refresh_payload = {'username': user_db.username, 'aud': 'refresh'}
 
-            await user_crud.write_refresh_token(user_db, refresh_token)
+        access_token = create_jwt_token(access_payload)
+        refresh_token = create_jwt_token(refresh_payload, timedelta(days=30))
 
-            response.set_cookie(key='access_token', value=access_token, httponly=True)
-            response.set_cookie(key='refresh_token', value=refresh_token, httponly=True)
+        await user_crud.write_refresh_token(user_db, refresh_token)
 
-            return {'detail': 'Tokens successfully updated'}
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid token'
-            )
+        return {'access_token': access_token, 'refresh_token': refresh_token}
+    else:
+        return HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Token invalid'
+        )
 
 
 async def check_access_token(access_token: Optional[str]):
     try:
         decoded_payload: dict = jwt.decode(access_token, key, ['RS512'], audience='access')
+        time_exp = time.strftime('%H:%M:%S %d.%m.%Y', time.localtime(decoded_payload['exp']))
+        decoded_payload.update({'exp': time_exp})
         return decoded_payload
     except JWTError:
         return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")
