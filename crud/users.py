@@ -5,6 +5,10 @@ from schemas.users import SingUpModel, LoginModel
 from fastapi.exceptions import HTTPException
 from fastapi import status
 from core.hashing_password import get_password, verify_password
+import logging
+logger = logging.getLogger()
+
+logger.disabled = True
 
 
 # DAL (Data Access Layer)
@@ -34,8 +38,17 @@ class UserOperation:
 
     async def get_user_by_username(self, user: LoginModel) -> List[User]:
         db_user = self.db_session.query(User).filter(User.username == user.username).first()
-        print(db_user)
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Wrong username or password'
+            )
         check_password = verify_password(user.password, db_user.password)
+        if not check_password:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Wrong username or password'
+            )
         if db_user and check_password:
             return db_user
 

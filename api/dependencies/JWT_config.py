@@ -1,3 +1,5 @@
+import random
+
 from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -5,11 +7,14 @@ from jose import jwt, JWTError
 from typing import Optional
 from datetime import timedelta, datetime
 from uuid import uuid4
-
+from db.database import cfg
 from core.RSA_config import pem, key
+from models.token import Token
 
+auth = Token(**cfg.auth)
 
 http_bearer = HTTPBearer(auto_error=False, bearerFormat='JWT')
+
 
 
 def create_jwt_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -18,10 +23,13 @@ def create_jwt_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=5)
+        expire = datetime.utcnow() + timedelta(minutes=int(auth.access_exp))
 
     payload.update({'exp': expire, 'jti': str(uuid4())})
-    encoded_jwt = jwt.encode(payload, pem, 'RS512')
+
+    # encoded_jwt = jwt.encode(payload, pem, 'RS512')
+
+    encoded_jwt = jwt.encode(payload, random.choice(auth.secret_words), 'HS256')
 
     return encoded_jwt
 
@@ -67,14 +75,20 @@ async def jwt_decode(jwt_token: str, audience: str):
         headers={"WWW-Authenticate": "Bearer"}
     )
 
-    try:
-        decoded_payload: dict = jwt.decode(jwt_token, key, ['RS512'], audience=audience)
+    # decoded_payload: dict = jwt.decode(jwt_token, key, ['RS512'], audience=audience)
+    decoded_payload = None
+
+    for i in auth.secret_words:
+        try:
+            decoded_payload = jwt.decode(jwt_token, i, ['HS256'], audience=audience)
+        except JWTError:
+            continue
 
         public_id: str = decoded_payload.get('username')
         if public_id is None:
             raise credentials_exception
 
-    except JWTError:
+    if decoded_payload is None:
         raise credentials_exception
 
     return decoded_payload

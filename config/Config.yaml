@@ -1,6 +1,12 @@
 psql:
   host: 'localhost'
-  database: 'mybas2e'
+  database: 'mybase'
   user: 'myuser'
   passwd: 'mypass'
   port: 5432
+
+auth:
+  access_token_expiration: 5
+  refresh_token_expiration: 5
+  secret_words: ['Rampart', 'Necropolis', 'Tower']
+  regex_for_password: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^\W_]{6,}$'

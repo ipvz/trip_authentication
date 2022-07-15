@@ -5,6 +5,7 @@ from pydantic_yaml import YamlModel
 
 class Config(YamlModel):
     psql: dict
+    auth: dict
 
 
 class Settings(BaseModel):
