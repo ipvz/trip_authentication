@@ -1,4 +1,5 @@
 import random
+import time
 
 from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -90,5 +91,6 @@ async def jwt_decode(jwt_token: str, audience: str):
 
     if decoded_payload is None:
         raise credentials_exception
-
+    time_exp = time.strftime('%H:%M:%S %d.%m.%Y', time.localtime(decoded_payload['exp']))
+    decoded_payload.update({'exp': time_exp})
     return decoded_payload

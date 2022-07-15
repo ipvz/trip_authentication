@@ -15,9 +15,20 @@ class SingUpModel(BaseModel):
     is_staff: Optional[bool]
     is_active: Optional[bool]
 
+    @validator('username')
+    def checking_name_for_pattern(cls, values):
+        regex = auth.regex_name
+        if re.fullmatch(regex, values):
+            return values
+        raise ValueError("Username requirements: "
+                         "a valid username should start with an alphabet, "
+                         "all other characters can be alphabets, "
+                         "numbers or an underscore, "
+                         "not less than 3 and no more than 30 characters")
+
     @validator('password')
-    def passwords_match(cls, values):
-        regex = auth.regex
+    def checking_pwd_for_pattern(cls, values):
+        regex = auth.regex_pswd
         if re.fullmatch(regex, values):
             return values
         raise ValueError('The password must be: '
@@ -28,7 +39,7 @@ class SingUpModel(BaseModel):
 
 
     @validator('password2')
-    def comparing_passwords(cls, v, values, **kwargs):
+    def passwords_match(cls, v, values, **kwargs):
         if 'password' in values and v != values['password']:
             raise ValueError('passwords do not match')
         return v

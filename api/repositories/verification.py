@@ -1,10 +1,7 @@
-import time
 from api.dependencies.JWT_config import jwt_decode, create_jwt_token
 from typing import Optional
 from datetime import timedelta
 from api.session import user_crud
-from jose import jwt, JWTError
-from core.RSA_config import key
 from fastapi import (
     HTTPException,
     status
@@ -36,13 +33,3 @@ async def refresh_token(refresh_token_from_req: Optional[str]):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Token invalid'
         )
-
-
-async def check_access_token(access_token: Optional[str]):
-    try:
-        decoded_payload: dict = jwt.decode(access_token, key, ['RS512'], audience='access')
-        time_exp = time.strftime('%H:%M:%S %d.%m.%Y', time.localtime(decoded_payload['exp']))
-        decoded_payload.update({'exp': time_exp})
-        return decoded_payload
-    except JWTError:
-        return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")

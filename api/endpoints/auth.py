@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Response, Depends
 from schemas.users import SingUpModel, LoginModel
 from api.repositories.authentication import authenticate_user
-from api.repositories.verification import check_access_token, refresh_token
+from api.repositories.verification import refresh_token
 from models.token import Token
 from fastapi import status
 from api.session import user_crud
 from fastapi.security import OAuth2PasswordBearer
+from api.dependencies.JWT_config import jwt_decode
 
 auth_router = APIRouter(
     prefix='/auth'
@@ -26,7 +27,7 @@ async def login(user: LoginModel,  response: Response):
 
 @auth_router.get('/check')
 async def check(token: str = Depends(oauth2_scheme)):
-    return await check_access_token(access_token=token)
+    return await jwt_decode(token, 'access')
 
 
 @auth_router.post('/refresh')
