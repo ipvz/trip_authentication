@@ -10,7 +10,6 @@ class SingUpModel(BaseModel):
     username: str
     email: str
     password: str
-    password2: str
     refresh_token: Optional[str]
     is_staff: Optional[bool]
     is_active: Optional[bool]
@@ -36,13 +35,6 @@ class SingUpModel(BaseModel):
                          'contains a lowercase letter, '
                          'contains a capital letter, '
                          'contains a number')
-
-
-    @validator('password2')
-    def passwords_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values['password']:
-            raise ValueError('passwords do not match')
-        return v
 
     class Config:
         orm_mode = True
