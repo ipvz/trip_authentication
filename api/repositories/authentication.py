@@ -5,11 +5,14 @@ from schemas.users import LoginModel
 from api.dependencies.JWT_config import create_jwt_token
 from crud.users import UserOperation
 from api.dependencies.JWT_config import auth
-
+from models.users import User
 
 
 async def authenticate_user(user_crud: UserOperation, user: LoginModel, response: Optional[Response] = None):
     user_db = await user_crud.get_user_by_username(user)
+
+    if not isinstance(user_db, User):
+        return user_db
 
     access_payload = {'username': user_db.username, 'aud': 'access'}
     refresh_payload = {'username': user_db.username, 'aud': 'refresh'}
