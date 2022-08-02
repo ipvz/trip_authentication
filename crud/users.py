@@ -43,8 +43,8 @@ class UserOperation:
         self.db_session.add(new_user)
         self.db_session.commit()
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"status": status.HTTP_200_OK, "message": "Successful registration"},
+            status_code=status.HTTP_201_CREATED,
+            content={"status": status.HTTP_201_CREATED, "message": "Successful registration"},
         )
 
     async def get_user_by_username(self, user: LoginModel) -> List[User]:
