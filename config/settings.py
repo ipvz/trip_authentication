@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from pydantic import validator, Field, BaseModel
 from pydantic_yaml import YamlModel
 
@@ -15,7 +15,7 @@ class Settings(BaseModel):
     PSQL_DB: str = Field(alias='database')
     PSQL_PORT: int = Field(alias='port')
 
-    DATABASE_URI: Optional[dict] = None
+    DATABASE_URI: Optional[Union[dict, str]] = None
 
     @validator("DATABASE_URI", always=True)
     def assemble_db_connection(cls, value, values) -> str:

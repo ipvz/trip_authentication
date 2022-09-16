@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from api.endpoints.auth import auth_router
 from db.init_bd import init_db
 
-app = FastAPI()
+app = FastAPI(openapi_url='/api/auth/openapi.json', docs_url='/auth/docs')
 
 app.include_router(auth_router, tags=['Authentication Path'])
 
